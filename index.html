@@ -22,6 +22,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
 <link rel="stylesheet" href="css/style.css">
 <style>
+/* Stock status styling */
+.product-card.is-out-of-stock .product-image{ filter: grayscale(100%); opacity: 0.55; }
+.stock-out-badge{ background:#6b7280 !important; }
+.product-availability.stock-out{ color:#d92d20; }
+.product-availability.stock-out i{ color:#d92d20; }
+.product-availability.in-stock{ color:#15803d; }
+.product-availability.in-stock i{ color:#15803d; }
+.btn-disabled{ background:#9ca3af !important; color:#fff !important; cursor:not-allowed; pointer-events:none; opacity:0.85; }
 /* ── Aqsa-specific overrides ── */
 :root {
   --primary: #0d0d0d;
@@ -786,60 +794,80 @@
 
 <script src="js/config.js"></script>
 <script>
-// ── Inline engine (replaces script.js dependency for product/gallery/filter) ──
+// ── Inline engine — reads everything from window.CONFIG (js/config.js) ──
 (function() {
   'use strict';
 
-  // ── Products data ──
-  const products = [
-    {
-      id:"p001", name:"Kids Tracker Suit — Orange", category:"Kids",
-      price:750, oldPrice:950, discount:"New Arrival",
-      image:"assets/images/products/kids-tracker-orange.jpg",
-      desc:"Pure cotton cute tracker suit. Class A quality. Fun excavator & tractor print for active kids. Ages 1–5 yrs.",
-      availability:"In Stock"
-    },
-    {
-      id:"p002", name:"Kids Kemodee Suit — Green", category:"Kids",
-      price:700, oldPrice:900, discount:"20% OFF",
-      image:"assets/images/products/kids-kemodee-green.jpg",
-      desc:"Soft cotton sweatshirt + black jogger set. 'I Am The Kemodee' tractor print. Cozy & stylish. Ages 1–5 yrs.",
-      availability:"In Stock"
-    },
-    {
-      id:"p003", name:"Kids Kemodee Suit — White", category:"Kids",
-      price:700, oldPrice:900, discount:"20% OFF",
-      image:"assets/images/products/kids-kemodee-white.jpg",
-      desc:"Classic white cotton sweatshirt + black joggers. Tractor graphic print. Perfect for everyday wear.",
-      availability:"In Stock"
-    },
-    {
-      id:"p004", name:"Women's Anarkali Dress — Red", category:"Women's",
-      price:2200, oldPrice:2800, discount:"Special Offer",
-      image:"assets/images/products/women-anarkali-red.jpg",
-      desc:"Elegant embroidered Anarkali gown with matching dupatta. Perfect for weddings, Eid & celebrations.",
-      availability:"In Stock"
-    }
-  ];
+  // Fallback keeps the page working even if config.js fails to load.
+  const cfg = window.CONFIG || { contact:{}, social:{}, business:{}, footer:{}, products:[], gallery:[], collections:[], productCategories:["All"] };
 
-  const gallery = [
-    "assets/images/products/kids-tracker-orange.jpg",
-    "assets/images/products/kids-kemodee-green.jpg",
-    "assets/images/products/kids-kemodee-white.jpg",
-    "assets/images/products/women-anarkali-red.jpg",
-    "assets/images/products/kids-tracker-orange2.jpg",
-    "assets/images/products/kids-kemodee-green2.jpg",
-  ];
+  // ── Data (sourced from CONFIG — edit js/config.js, not this file) ──
+  const products = (cfg.products || []).map(p => ({
+    id: p.id, name: p.name, category: p.category,
+    price: p.price, oldPrice: p.oldPrice, discount: p.discount,
+    image: p.image, desc: p.description, availability: p.availability
+  }));
 
-  const collections = [
-    { title:"Kids Collection", image:"assets/images/products/kids-tracker-orange.jpg", desc:"Fun, durable & adorable outfits for your little ones.", link:"#products" },
-    { title:"Women's Collection", image:"assets/images/products/women-anarkali-red.jpg", desc:"Elegant dresses for every occasion — casual to festive.", link:"#products" },
-    { title:"New Arrivals", image:"assets/images/products/kids-kemodee-green.jpg", desc:"Fresh styles every season — order before stock runs out!", link:"#products" }
-  ];
+  const gallery = cfg.gallery || [];
 
-  const WA = "8801616724075";
+  const collections = (cfg.collections || []).map(c => ({
+    title: c.title, image: c.image, desc: c.description, link: c.link
+  }));
+
+  const WA = (cfg.contact && cfg.contact.whatsapp || "").replace(/[^\d]/g, '');
   function waLink(msg) { return `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`; }
-  function price(n) { return '৳' + n.toLocaleString(); }
+  function price(n) { return '৳' + Number(n).toLocaleString(); }
+
+  // ── Apply CONFIG-driven content that used to be hardcoded in HTML ──
+  function applyConfigToPage() {
+    const c = cfg;
+    // Filter bar — rebuilt from productCategories
+    const bar = document.getElementById('productFilterBar');
+    if (bar && Array.isArray(c.productCategories) && c.productCategories.length) {
+      bar.innerHTML = c.productCategories.map((cat, i) => `
+        <button class="filter-btn${i===0 ? ' active' : ''}" data-category="${cat}" role="tab" aria-selected="${i===0}">${cat}</button>
+      `).join('');
+    }
+    // Contact email
+    const emailEl = document.getElementById('contactEmail');
+    if (emailEl && c.contact && c.contact.email) {
+      emailEl.textContent = c.contact.email;
+      emailEl.href = `mailto:${c.contact.email}`;
+    }
+    // Footer description & copyright
+    const footerDesc = document.getElementById('footerDescription');
+    if (footerDesc && c.footer && c.footer.shortDescription) footerDesc.textContent = c.footer.shortDescription;
+    const footerCopy = document.getElementById('footerCopyright');
+    if (footerCopy && c.business && c.business.name) footerCopy.textContent = `© ${new Date().getFullYear()} ${c.business.name}. All rights reserved.`;
+    // Hero subheading
+    const heroSub = document.getElementById('heroSubheading');
+    if (heroSub && c.hero && c.hero.subheading) heroSub.textContent = c.hero.subheading;
+    // Floating WhatsApp button
+    const floatWa = document.getElementById('floatingWhatsapp');
+    if (floatWa && WA) {
+      const greet = `আমি ${c.business && c.business.name ? c.business.name : ''} সম্পর্কে জানতে চাই।`;
+      floatWa.href = waLink(greet);
+    }
+    // Social links (Facebook)
+    if (c.social && c.social.facebook) {
+      document.querySelectorAll('a[href*="facebook.com"]').forEach(a => { a.href = c.social.facebook; });
+    }
+    // Rewrite every hardcoded WhatsApp / tel link so only CONFIG needs editing
+    const phoneDigits = (c.contact && c.contact.phone || "").replace(/[^\d+]/g, '');
+    if (WA) {
+      document.querySelectorAll('a[href*="wa.me/"]').forEach(a => {
+        const q = a.href.split('?')[1];
+        a.href = q ? `https://wa.me/${WA}?${q}` : `https://wa.me/${WA}`;
+      });
+    }
+    if (phoneDigits) {
+      document.querySelectorAll('a[href^="tel:"]').forEach(a => { a.href = `tel:${phoneDigits}`; });
+    }
+    const phoneTextEl = document.getElementById('contactPhone');
+    if (phoneTextEl && c.contact && c.contact.phone) phoneTextEl.textContent = c.contact.phone;
+    const waTextEl = document.getElementById('contactWhatsapp');
+    if (waTextEl && WA) waTextEl.textContent = `wa.me/${WA}`;
+  }
 
   // ── Filter + Products ──
   let current = "All";
@@ -852,10 +880,12 @@
     noMsg.hidden = true;
     grid.innerHTML = list.map(p => {
       const msg = `আমি এই পণ্যটি অর্ডার করতে চাই:\nপণ্য: ${p.name}\nমূল্য: ${price(p.price)}\nআমার নাম: \nঠিকানা: `;
+      const outOfStock = p.availability === "Stock Out";
       return `
-        <div class="product-card aos-fade-up" data-category="${p.category}">
+        <div class="product-card aos-fade-up ${outOfStock ? 'is-out-of-stock' : ''}" data-category="${p.category}">
           <div class="product-image-wrap">
-            ${p.discount ? `<span class="product-badge">${p.discount}</span>` : ''}
+            ${p.discount && !outOfStock ? `<span class="product-badge">${p.discount}</span>` : ''}
+            ${outOfStock ? `<span class="product-badge stock-out-badge">Stock Out</span>` : ''}
             <img class="product-image" src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22500%22%3E%3Crect fill=%22%23ecebf0%22 width=%22100%25%22 height=%22100%25%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%238a8894%22 text-anchor=%22middle%22 font-size=%2216%22%3EImage%3C/text%3E%3C/svg%3E'">
           </div>
           <div class="product-body">
@@ -866,11 +896,11 @@
               <span class="product-price">${price(p.price)}</span>
               ${p.oldPrice ? `<span class="product-oldprice">${price(p.oldPrice)}</span>` : ''}
             </div>
-            <span class="product-availability in-stock"><i class="fa-solid fa-circle" style="font-size:7px;"></i> ${p.availability}</span>
+            <span class="product-availability ${outOfStock ? 'stock-out' : 'in-stock'}"><i class="fa-solid fa-circle" style="font-size:7px;"></i> ${p.availability}</span>
             <div class="product-actions">
-              <a href="${waLink(msg)}" target="_blank" rel="noopener" class="btn btn-whatsapp">
-                <i class="fa-brands fa-whatsapp"></i> Order Now
-              </a>
+              ${outOfStock
+                ? `<span class="btn btn-whatsapp btn-disabled"><i class="fa-solid fa-ban"></i> Stock Out</span>`
+                : `<a href="${waLink(msg)}" target="_blank" rel="noopener" class="btn btn-whatsapp"><i class="fa-brands fa-whatsapp"></i> Order Now</a>`}
             </div>
           </div>
         </div>`;
@@ -878,15 +908,18 @@
     observeReveal();
   }
 
-  // ── Filter buttons ──
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+  // ── Filter buttons (delegated — works even though the bar is rebuilt from CONFIG) ──
+  const filterBar = document.getElementById('productFilterBar');
+  if (filterBar) {
+    filterBar.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      filterBar.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
       btn.classList.add('active'); btn.setAttribute('aria-selected','true');
       current = btn.dataset.category;
       renderProducts();
     });
-  });
+  }
 
   // ── Collections ──
   function renderCollections() {
@@ -1022,6 +1055,7 @@
   }
 
   // ── INIT ──
+  applyConfigToPage();
   renderProducts();
   renderCollections();
   renderGallery();
