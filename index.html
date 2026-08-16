@@ -279,7 +279,102 @@
   filter: none !important;
 }
 
-/* ─── RESPONSIVE for new sections ─── */
+/* ─── ERRUMBD-STYLE DARK PREMIUM OVERRIDE ─── */
+:root {
+  --bg: #0a0a0a !important;
+  --surface: #141414 !important;
+  --text: #f5f5f0 !important;
+  --text-muted: #a8a8a0 !important;
+  --border: rgba(201,168,56,0.18) !important;
+}
+body { background: #0a0a0a !important; color: #f5f5f0 !important; }
+.site-header { background: rgba(10,10,10,0.92) !important; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(201,168,56,0.15) !important; }
+.nav-link { color: #f5f5f0 !important; }
+.mobile-menu { background: #0a0a0a !important; }
+.mobile-nav-link { color: #f5f5f0 !important; }
+.icon-btn { color: #f5f5f0 !important; }
+.section-heading { color: #f5f5f0 !important; }
+.section-subheading { color: #a8a8a0 !important; }
+.about-story { color: #c8c8c0 !important; }
+.feature-card, .product-card, .collection-card, .why-item, .testimonial-card { background: #141414 !important; border: 1px solid rgba(201,168,56,0.14) !important; }
+.feature-title, .product-name, .why-item-title { color: #f5f5f0 !important; }
+.feature-text, .product-desc, .why-item-text { color: #a8a8a0 !important; }
+.testimonials-section { background: #0a0a0a !important; }
+.footer, .site-footer { background: #050505 !important; }
+.product-filter-bar { background: transparent !important; }
+.filter-btn { background: #141414 !important; color: #f5f5f0 !important; border: 1px solid rgba(201,168,56,0.25) !important; }
+.product-price { color: var(--gold) !important; }
+
+/* ─── MARQUEE BANNER (errumbd style) ─── */
+.marquee-banner {
+  background: linear-gradient(90deg, #0a0a0a, #1a1500, #0a0a0a);
+  border-top: 1px solid rgba(201,168,56,0.25);
+  border-bottom: 1px solid rgba(201,168,56,0.25);
+  overflow: hidden;
+  padding: 12px 0;
+  white-space: nowrap;
+}
+.marquee-track {
+  display: inline-block;
+  animation: marquee-scroll 26s linear infinite;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--gold-light);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.marquee-track span { margin: 0 22px; }
+.marquee-track span::before { content: '✦'; margin-right: 22px; color: var(--gold); }
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── CATEGORY GRID (errumbd style) ─── */
+.category-section { padding: var(--space-9) 0; background: #0a0a0a; }
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: var(--space-6);
+}
+.category-tile {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(201,168,56,0.18);
+  background: #141414;
+  display: block;
+  text-decoration: none;
+}
+.category-tile img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: brightness(0.6);
+}
+.category-tile:hover img { transform: scale(1.08); filter: brightness(0.75); }
+.category-tile-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 18px;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%);
+}
+.category-tile-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 4px;
+}
+.category-tile-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700; color: #fff;
+}
+@media (max-width: 640px) {
+  .category-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ─── RESPONSIVE (restored) ─── */
 @media (max-width: 768px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-item { border-right: none; border-bottom: 1px solid rgba(201,168,56,0.2); }
@@ -296,6 +391,11 @@
 <body>
 
 <a href="#main-content" class="skip-link">মূল কনটেন্টে যান</a>
+
+<!-- ═══════════════ MARQUEE ═══════════════ -->
+<div class="marquee-banner" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
 
 <!-- ═══════════════ HEADER ═══════════════ -->
 <header class="site-header" id="siteHeader">
@@ -394,6 +494,18 @@
         <p class="stat-label">Districts Covered</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CATEGORY GRID ═══════════════ -->
+<section class="category-section" id="categoryGridSection">
+  <div class="container">
+    <div class="section-header-center">
+      <span class="section-eyebrow">Shop by Category</span>
+      <h2 class="section-heading">Find Your Essentials</h2>
+      <p class="section-subheading">Explore curated picks for Men, Women & Kids — one tap away on WhatsApp</p>
+    </div>
+    <div class="category-grid" id="categoryGrid"></div>
   </div>
 </section>
 
@@ -867,6 +979,39 @@
     if (phoneTextEl && c.contact && c.contact.phone) phoneTextEl.textContent = c.contact.phone;
     const waTextEl = document.getElementById('contactWhatsapp');
     if (waTextEl && WA) waTextEl.textContent = `wa.me/${WA}`;
+
+    // Marquee banner — scrolling highlights
+    const marquee = document.getElementById('marqueeTrack');
+    if (marquee) {
+      const items = ["Cash on Delivery", "Premium Quality", "Men · Women · Kids", "Nationwide Shipping", "WhatsApp Order", "New Arrivals Weekly"];
+      const line = items.map(t => `<span>${t}</span>`).join('');
+      marquee.innerHTML = line + line; // duplicate for seamless loop
+    }
+
+    // Category grid — one tile per productCategory (excluding "All")
+    const catGrid = document.getElementById('categoryGrid');
+    if (catGrid && Array.isArray(c.productCategories)) {
+      const cats = c.productCategories.filter(cat => cat !== 'All');
+      catGrid.innerHTML = cats.map((cat, i) => {
+        const match = (c.products || []).find(p => p.category === cat);
+        const img = match ? match.image : (c.hero && c.hero.backgroundImage) || '';
+        return `
+          <a href="#products" class="category-tile category-tile-jump" data-category="${cat}">
+            <img src="${img}" alt="${cat}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23141414%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E'">
+            <div class="category-tile-overlay">
+              <span class="category-tile-label">Cat. 0${i+1}</span>
+              <span class="category-tile-title">${cat}</span>
+            </div>
+          </a>`;
+      }).join('');
+      catGrid.querySelectorAll('.category-tile-jump').forEach(tile => {
+        tile.addEventListener('click', () => {
+          const cat = tile.dataset.category;
+          const btn = document.querySelector(`#productFilterBar .filter-btn[data-category="${CSS.escape(cat)}"]`);
+          if (btn) setTimeout(() => btn.click(), 350);
+        });
+      });
+    }
   }
 
   // ── Filter + Products ──
