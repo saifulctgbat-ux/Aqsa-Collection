@@ -386,6 +386,44 @@ body { background: #0a0a0a !important; color: #f5f5f0 !important; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-num { font-size: 28px; }
 }
+
+  /* ── MIRAQSA attribution ── */
+  #miraqsa-powered-by {
+    text-align: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(201,168,56,0.12);
+  }
+  #miraqsa-powered-by .mpb-line1 {
+    display: block;
+    font-size: 11px;
+    color: rgba(168,168,160,0.7);
+    margin-bottom: 3px;
+    font-family: inherit;
+  }
+  #miraqsa-powered-by .mpb-line1 strong {
+    font-weight: 600;
+    color: rgba(168,168,160,0.9);
+  }
+  #miraqsa-powered-by .mpb-line2 {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(168,168,160,0.55);
+    text-decoration: none;
+    transition: color 0.2s, opacity 0.2s;
+  }
+  #miraqsa-powered-by .mpb-line2:hover {
+    color: var(--gold, #c9a838);
+    opacity: 1;
+  }
+  /* Light theme adjustment */
+  [data-theme="light"] #miraqsa-powered-by .mpb-line1 { color: #6b6b6b; }
+  [data-theme="light"] #miraqsa-powered-by .mpb-line1 strong { color: #4a4a4a; }
+  [data-theme="light"] #miraqsa-powered-by .mpb-line2 { color: #9a9a9a; }
+  [data-theme="light"] #miraqsa-powered-by .mpb-line2:hover { color: var(--gold-dark, #a07c1e); }
 </style>
 </head>
 <body>
@@ -891,6 +929,10 @@ body { background: #0a0a0a !important; color: #f5f5f0 !important; }
     <div class="container footer-bottom-inner">
       <p id="footerCopyright">© 2026 Aqsa Collection. All rights reserved.</p>
       <p style="font-size:12px;opacity:0.5;">Satkania, Chittagong, Bangladesh</p>
+      <div id="miraqsa-powered-by">
+        <span class="mpb-line1">Designed &amp; Developed by <strong>Saiful Islam</strong></span>
+        <a class="mpb-line2" href="https://miraqsa.com" target="_blank" rel="noopener noreferrer">MIRAQSA — Digital Solutions</a>
+      </div>
     </div>
   </div>
 </footer>
